@@ -103,6 +103,7 @@ public class AccountControllerTest {
     assertThat(response.getStatus()).isEqualTo(204);
 
     verify(accountsManager, times(1)).create(isA(Account.class));
+    verify(rateLimiter).validate(eq(SENDER));
   }
 
   @Test
