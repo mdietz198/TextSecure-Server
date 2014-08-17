@@ -88,6 +88,7 @@ public class DeviceControllerTest {
 
     assertThat(deviceCode).isEqualTo(new VerificationCode(5678901));
     verify(rateLimiter).validate(AuthHelper.VALID_NUMBER);
+    verify(pendingDevicesManager).store(AuthHelper.VALID_NUMBER, "5678901");
     reset(rateLimiter);
 
     DeviceResponse response = resources.client().resource("/v1/devices/5678901")
