@@ -237,7 +237,19 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <targetClasses>
+                        <param>org.whispersystems.textsecuregcm*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>org.whispersystems.textsecuregcm.tests*</param>
+                    </targetTests>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
