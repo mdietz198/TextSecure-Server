@@ -63,6 +63,7 @@ public class AccountControllerTest {
     assertThat(response.getStatus()).isEqualTo(200);
 
     verify(smsSender).deliverSmsVerification(eq(SENDER), anyString());
+    verify(rateLimiter).validate(eq(SENDER));
   }
 
   @Test
