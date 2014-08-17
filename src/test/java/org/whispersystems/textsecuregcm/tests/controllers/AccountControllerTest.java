@@ -85,6 +85,17 @@ public class AccountControllerTest {
   }
 
   @Test
+  public void testSendCodeViaUnknownTransport() throws Exception {
+    ClientResponse response =
+        resources.client().resource(String.format("/v1/accounts/unknown_transport/code/%s", SENDER))
+            .get(ClientResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(422);
+
+    verifyNoMoreInteractions(pendingAccountsManager, smsSender, rateLimiter);
+  }
+
+  @Test
   public void testSendCodeWithNonNumbericSender() throws Exception {
     ClientResponse response =
         resources.client().resource(String.format("/v1/accounts/sms/code/%s", "invalid_number"))
@@ -106,7 +117,6 @@ public class AccountControllerTest {
 
     assertThat(response.getStatus()).isEqualTo(204);
 
-    //verify(accountsManager, times(1)).create(isA(Account.class));
     ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
     verify(rateLimiter).validate(eq(SENDER));
     verify(accountsManager, times(1)).create(accountCaptor.capture());
