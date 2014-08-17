@@ -87,6 +87,8 @@ public class DeviceControllerTest {
         .get(VerificationCode.class);
 
     assertThat(deviceCode).isEqualTo(new VerificationCode(5678901));
+    verify(rateLimiter).validate(AuthHelper.VALID_NUMBER);
+    reset(rateLimiter);
 
     DeviceResponse response = resources.client().resource("/v1/devices/5678901")
         .header("Authorization", AuthHelper.getAuthHeader(AuthHelper.VALID_NUMBER, "password1"))
@@ -97,5 +99,6 @@ public class DeviceControllerTest {
     assertThat(response.getDeviceId()).isEqualTo(42L);
 
     verify(pendingDevicesManager).remove(AuthHelper.VALID_NUMBER);
+    verify(rateLimiter).validate(AuthHelper.VALID_NUMBER);
   }
 }
