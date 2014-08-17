@@ -67,6 +67,18 @@ public class AccountControllerTest {
   }
 
   @Test
+  public void testSendCodeViaVoice() throws Exception {
+    ClientResponse response =
+        resources.client().resource(String.format("/v1/accounts/voice/code/%s", SENDER))
+            .get(ClientResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(200);
+
+    verify(smsSender).deliverVoxVerification(eq(SENDER), anyString());
+    verify(rateLimiter).validate(eq(SENDER));
+  }
+
+  @Test
   public void testSendCodeWithNonNumbericSender() throws Exception {
     ClientResponse response =
         resources.client().resource(String.format("/v1/accounts/sms/code/%s", "invalid_number"))
