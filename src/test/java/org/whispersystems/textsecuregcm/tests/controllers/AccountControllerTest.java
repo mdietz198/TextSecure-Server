@@ -133,6 +133,7 @@ public class AccountControllerTest {
     assertThat(device.getRegistrationId()).isEqualTo(2222);
     
     verify(storedMessages).clear(any(WebsocketAddress.class));
+    verify(pendingAccountsManager).remove(eq(SENDER));
   }
 
   @Test
