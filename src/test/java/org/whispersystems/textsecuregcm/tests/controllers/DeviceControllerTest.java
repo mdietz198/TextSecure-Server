@@ -17,9 +17,11 @@
 package org.whispersystems.textsecuregcm.tests.controllers;
 
 import com.google.common.base.Optional;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.whispersystems.textsecuregcm.controllers.DeviceController;
 import org.whispersystems.textsecuregcm.entities.AccountAttributes;
 import org.whispersystems.textsecuregcm.entities.DeviceResponse;
@@ -27,6 +29,7 @@ import org.whispersystems.textsecuregcm.limits.RateLimiter;
 import org.whispersystems.textsecuregcm.limits.RateLimiters;
 import org.whispersystems.textsecuregcm.storage.Account;
 import org.whispersystems.textsecuregcm.storage.AccountsManager;
+import org.whispersystems.textsecuregcm.storage.Device;
 import org.whispersystems.textsecuregcm.storage.PendingDevicesManager;
 import org.whispersystems.textsecuregcm.tests.util.AuthHelper;
 import org.whispersystems.textsecuregcm.util.VerificationCode;
@@ -101,5 +104,13 @@ public class DeviceControllerTest {
 
     verify(pendingDevicesManager).remove(AuthHelper.VALID_NUMBER);
     verify(rateLimiter).validate(AuthHelper.VALID_NUMBER);
+
+    ArgumentCaptor<Device> accountCaptor = ArgumentCaptor.forClass(Device.class);
+    verify(account, times(1)).addDevice(accountCaptor.capture());
+    Device device = accountCaptor.getValue();
+    assertThat(device.getId()).isEqualTo(42);
+    assertThat(device.getAuthenticationCredentials().verify("password1")).isTrue();
+    assertThat(device.getSignalingKey()).isEqualTo("keykeykeykey");
+    assertThat(device.getFetchesMessages()).isTrue();
   }
 }
