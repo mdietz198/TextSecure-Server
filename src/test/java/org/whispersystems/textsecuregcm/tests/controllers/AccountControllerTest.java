@@ -66,6 +66,17 @@ public class AccountControllerTest {
   }
 
   @Test
+  public void testSendCodeWithNonNumbericSender() throws Exception {
+    ClientResponse response =
+        resources.client().resource(String.format("/v1/accounts/sms/code/%s", "invalid_number"))
+            .get(ClientResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(400);
+
+    verifyNoMoreInteractions(smsSender);
+  }
+
+  @Test
   public void testVerifyCode() throws Exception {
     ClientResponse response =
         resources.client().resource(String.format("/v1/accounts/code/%s", "1234"))
