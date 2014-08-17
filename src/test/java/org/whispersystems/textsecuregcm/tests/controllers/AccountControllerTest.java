@@ -120,4 +120,21 @@ public class AccountControllerTest {
     verifyNoMoreInteractions(accountsManager);
   }
 
+  @Test
+  public void testVerifyCodeFromRelayListedNumber() throws Exception {
+    when(accountsManager.isRelayListed(SENDER)).thenReturn(true);
+    ClientResponse response =
+        resources.client().resource(String.format("/v1/accounts/code/%s", "1234"))
+            .header("Authorization", AuthHelper.getAuthHeader(SENDER, "bar"))
+            .entity(new AccountAttributes("keykeykeykey", false, false, 2222))
+            .type(MediaType.APPLICATION_JSON_TYPE)
+            .put(ClientResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(417);
+
+    verify(accountsManager).isRelayListed(anyString());
+    verify(accountsManager, times(0)).create(any(Account.class));
+    verify(rateLimiter).validate(eq(SENDER));
+  }
+
 }
