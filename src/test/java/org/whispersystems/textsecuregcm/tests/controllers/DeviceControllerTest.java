@@ -17,6 +17,7 @@
 package org.whispersystems.textsecuregcm.tests.controllers;
 
 import com.google.common.base.Optional;
+import com.sun.jersey.api.client.ClientResponse;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -112,5 +113,14 @@ public class DeviceControllerTest {
     assertThat(device.getAuthenticationCredentials().verify("password1")).isTrue();
     assertThat(device.getSignalingKey()).isEqualTo("keykeykeykey");
     assertThat(device.getFetchesMessages()).isTrue();
+  }
+
+  @Test
+  public void testVerifyCodeReturns401WhenAuthHeaderIsBad() throws Exception {
+    ClientResponse response = resources.client().resource("/v1/devices/provisioning_code")
+        .header("Authorization", "invalid_auth_header")
+        .get(ClientResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(401);
   }
 }
