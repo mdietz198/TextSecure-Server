@@ -2,9 +2,12 @@ package org.whispersystems.textsecuregcm.tests.controllers;
 
 import com.google.common.base.Optional;
 import com.sun.jersey.api.client.ClientResponse;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.whispersystems.textsecuregcm.auth.AuthenticationCredentials;
 import org.whispersystems.textsecuregcm.controllers.AccountController;
 import org.whispersystems.textsecuregcm.entities.AccountAttributes;
 import org.whispersystems.textsecuregcm.limits.RateLimiter;
@@ -12,6 +15,7 @@ import org.whispersystems.textsecuregcm.limits.RateLimiters;
 import org.whispersystems.textsecuregcm.sms.SmsSender;
 import org.whispersystems.textsecuregcm.storage.Account;
 import org.whispersystems.textsecuregcm.storage.AccountsManager;
+import org.whispersystems.textsecuregcm.storage.Device;
 import org.whispersystems.textsecuregcm.storage.PendingAccountsManager;
 import org.whispersystems.textsecuregcm.storage.StoredMessages;
 import org.whispersystems.textsecuregcm.tests.util.AuthHelper;
@@ -102,8 +106,20 @@ public class AccountControllerTest {
 
     assertThat(response.getStatus()).isEqualTo(204);
 
-    verify(accountsManager, times(1)).create(isA(Account.class));
+    //verify(accountsManager, times(1)).create(isA(Account.class));
+    ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
     verify(rateLimiter).validate(eq(SENDER));
+    verify(accountsManager, times(1)).create(accountCaptor.capture());
+    Account account = accountCaptor.getValue();
+    assertThat(account.getNumber()).isEqualTo(SENDER);
+    assertThat(account.getSupportsSms()).isFalse();
+
+    Device device = account.getDevice(Device.MASTER_ID).get();
+    assertThat(device.getId()).isEqualTo(Device.MASTER_ID);
+    assertThat(device.getAuthenticationCredentials().verify("bar")).isTrue();
+    assertThat(device.getSignalingKey()).isEqualTo("keykeykeykey");
+    assertThat(device.getFetchesMessages()).isFalse();
+    assertThat(device.getRegistrationId()).isEqualTo(2222);
   }
 
   @Test
