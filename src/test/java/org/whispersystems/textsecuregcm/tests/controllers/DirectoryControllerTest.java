@@ -22,8 +22,7 @@ import java.util.List;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DirectoryControllerTest {
 
@@ -76,5 +75,6 @@ public class DirectoryControllerTest {
 
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getEntity(ClientContactTokens.class).getContacts()).isEqualTo(expectedResponse);
+    verify(rateLimiter).validate(eq(AuthHelper.VALID_NUMBER), eq(3));
   }
 }
