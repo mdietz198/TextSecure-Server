@@ -19,6 +19,7 @@ import org.whispersystems.textsecuregcm.storage.Device;
 import org.whispersystems.textsecuregcm.storage.PendingAccountsManager;
 import org.whispersystems.textsecuregcm.storage.StoredMessages;
 import org.whispersystems.textsecuregcm.tests.util.AuthHelper;
+import org.whispersystems.textsecuregcm.websocket.WebsocketAddress;
 
 import javax.ws.rs.core.MediaType;
 
@@ -130,6 +131,8 @@ public class AccountControllerTest {
     assertThat(device.getSignalingKey()).isEqualTo("keykeykeykey");
     assertThat(device.getFetchesMessages()).isFalse();
     assertThat(device.getRegistrationId()).isEqualTo(2222);
+    
+    verify(storedMessages).clear(any(WebsocketAddress.class));
   }
 
   @Test
