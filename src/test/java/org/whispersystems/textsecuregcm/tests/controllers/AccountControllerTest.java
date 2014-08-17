@@ -64,6 +64,7 @@ public class AccountControllerTest {
 
     verify(smsSender).deliverSmsVerification(eq(SENDER), anyString());
     verify(rateLimiter).validate(eq(SENDER));
+    verify(pendingAccountsManager).store(eq(SENDER), anyString());
   }
 
   @Test
@@ -76,6 +77,7 @@ public class AccountControllerTest {
 
     verify(smsSender).deliverVoxVerification(eq(SENDER), anyString());
     verify(rateLimiter).validate(eq(SENDER));
+    verify(pendingAccountsManager).store(eq(SENDER), anyString());
   }
 
   @Test
