@@ -166,5 +166,17 @@ public class AccountControllerTest {
     verify(accountsManager, times(0)).create(any(Account.class));
     verify(rateLimiter).validate(eq(SENDER));
   }
+  
+  @Test
+  public void testVerifyCodeReturns401WhenAuthHeaderIsBad() throws Exception {
+    ClientResponse response =
+        resources.client().resource(String.format("/v1/accounts/code/%s", "1234"))
+            .header("Authorization", "invalid_auth_header")
+            .entity(new AccountAttributes("keykeykeykey", true, true, 2222))
+            .type(MediaType.APPLICATION_JSON_TYPE)
+            .put(ClientResponse.class);
+
+    assertThat(response.getStatus()).isEqualTo(401);
+  }
 
 }
