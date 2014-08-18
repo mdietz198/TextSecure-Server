@@ -7,6 +7,7 @@ import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.UpgradeRequest;
 import org.junit.Test;
+import org.junit.Before;
 import org.whispersystems.textsecuregcm.auth.AccountAuthenticator;
 import org.whispersystems.textsecuregcm.controllers.WebsocketController;
 import org.whispersystems.textsecuregcm.entities.AcknowledgeWebsocketMessage;
@@ -32,24 +33,29 @@ import static org.mockito.Mockito.*;
 
 public class WebsocketControllerTest {
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
-  private static final String VALID_USER   = "+14152222222";
-  private static final String INVALID_USER = "+14151111111";
+  private final String VALID_USER   = "+14152222222";
+  private final String INVALID_USER = "+14151111111";
 
-  private static final String VALID_PASSWORD   = "secure";
-  private static final String INVALID_PASSWORD = "insecure";
+  private final String VALID_PASSWORD   = "secure";
+  private final String INVALID_PASSWORD = "insecure";
 
-  private static final StoredMessages       storedMessages       = mock(StoredMessages.class);
-  private static final AccountAuthenticator accountAuthenticator = mock(AccountAuthenticator.class);
-  private static final AccountsManager      accountsManager      = mock(AccountsManager.class);
-  private static final PubSubManager        pubSubManager        = mock(PubSubManager.class       );
-  private static final Account              account              = mock(Account.class             );
-  private static final Device               device               = mock(Device.class              );
-  private static final UpgradeRequest       upgradeRequest       = mock(UpgradeRequest.class      );
-  private static final Session              session              = mock(Session.class             );
-  private static final PushSender           pushSender           = mock(PushSender.class);
-
+  private final StoredMessages       storedMessages       = mock(StoredMessages.class);
+  private final AccountAuthenticator accountAuthenticator = mock(AccountAuthenticator.class);
+  private final AccountsManager      accountsManager      = mock(AccountsManager.class);
+  private final PubSubManager        pubSubManager        = mock(PubSubManager.class       );
+  private final Account              account              = mock(Account.class             );
+  private final Device               device               = mock(Device.class              );
+  private final UpgradeRequest       upgradeRequest       = mock(UpgradeRequest.class      );
+  private final Session              session              = mock(Session.class             );
+  private final PushSender           pushSender           = mock(PushSender.class);
+  
+  @Before
+  public void setUp() {
+    when(account.getAuthenticatedDevice()).thenReturn(Optional.of(device));
+  }
+ 
   @Test
   public void testCredentials() throws Exception {
     when(accountAuthenticator.authenticate(eq(new BasicCredentials(VALID_USER, VALID_PASSWORD))))
@@ -94,7 +100,6 @@ public class WebsocketControllerTest {
     }};
 
     when(device.getId()).thenReturn(2L);
-    when(account.getAuthenticatedDevice()).thenReturn(Optional.of(device));
     when(account.getNumber()).thenReturn("+14152222222");
     when(session.getRemote()).thenReturn(remote);
     when(session.getUpgradeRequest()).thenReturn(upgradeRequest);
@@ -137,7 +142,7 @@ public class WebsocketControllerTest {
       add(new PendingMessage("sender1", 1111, false, "first"));
       add(new PendingMessage("sender2", 3333, false, "third"));
     }};
-
+  
     verify(pushSender, times(2)).sendMessage(eq(account), eq(device), any(PendingMessage.class));
     verify(pushSender, times(1)).sendMessage(eq(sender1), eq(sender1device), any(MessageProtos.OutgoingMessageSignal.class));
   }
